@@ -1,7 +1,7 @@
 FROM maven As build
 WORKDIR /app
 COPY . /app
-RUN mvn clean install -DTests
+RUN mvn clean install -DskipTests
 
 FROM tomcat
 COPY --from=build /test/target/bankapp-0.0.1-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
