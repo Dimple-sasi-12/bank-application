@@ -13,10 +13,10 @@ pipeline {
         }
         stage ("delete networks, images and container") {
             steps {
-                sh 'docker stop $(docker ps -q)'
-                sh 'docker rm $(docker ps -aq)'
-                sh 'docker rmi $(docker images -q)'
-                sh 'docker network rm $(docker network ls -q)'
+                sh 'docker stop $(docker ps -q) || true'
+                sh 'docker rm $(docker ps -aq) || true'
+                sh 'docker rmi $(docker images -q) || true'
+                sh 'docker network rm $(docker network ls -q | grep -v -E 'bridge|host|none')'
             }
         }
         stage ("create a docker network") {
