@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    stages {
+        stage ("git scm") {
+            steps {
+                git 'https://github.com/Dimple-sasi-12/bank-application.git' 
+            }
+        }
+        stage ("compile") {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+        stage ("create a docker network") {
+            steps {
+                sh 'docker network create bank-network'
+            }
+        }
+        stage ("run sql database") {
+            steps {
+                sh 'docker run -d --name mysql --network bank-network -e MYSQL_ROOT_PASSWORD=testZ@123 -e MYSQL_DATABASE=bankkappdb -p 3306:3306 mysql'
+            }
+        }
+        stage ("create docker image and container") {
+            steps {
+                sh 'docker build -t bank-img .'
+                sh 'docker run -itd --name bank-con --network bank-network -p 81:8080 bank-img'
+            }
+        }
+    }
+}
