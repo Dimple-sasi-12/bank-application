@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage ("git scm") {
             steps {
-                git branch: 'branch1' url: 'https://github.com/Dimple-sasi-12/bank-application.git' 
+                git branch: 'branch1', url: 'https://github.com/Dimple-sasi-12/bank-application.git' 
             }
         }
         stage ("compile") {
