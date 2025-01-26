@@ -16,7 +16,7 @@ pipeline {
                 sh 'docker stop $(docker ps -q) || true'
                 sh 'docker rm $(docker ps -aq) || true'
                 sh 'docker rmi $(docker images -q) || true'
-                sh 'docker network rm $(docker network ls -q | grep -v -E 'bridge|host|none')'
+                sh 'docker network rm $(docker network ls -q | grep -v -E "bridge|host|none")'
             }
         }
         stage ("create a docker network") {
