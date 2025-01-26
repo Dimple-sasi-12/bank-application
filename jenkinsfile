@@ -11,6 +11,14 @@ pipeline {
                 sh 'mvn compile'
             }
         }
+        stage ("delete networks, images and container") {
+            steps {
+                sh 'docker stop $(docker ps -q)'
+                sh 'docker rm $(docker ps -aq)'
+                sh 'docker rmi $(docker images -q)'
+                sh 'docker network rm $(docker network ls -q)'
+            }
+        }
         stage ("create a docker network") {
             steps {
                 sh 'docker network create bank-network'
