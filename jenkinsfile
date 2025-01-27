@@ -32,7 +32,7 @@ pipeline {
         stage ("create docker image and container") {
             steps {
                 sh 'docker build -t bank-img .'
-                sh 'docker run -itd --name bank-con --network bank-network -p 81:8081 bank-img'
+                sh 'docker run -itd --name bank-con --network bank-network -p 8082:8081 bank-img'
             }
         }
     }
