@@ -26,7 +26,7 @@ pipeline {
         }
         stage ("run sql database") {
             steps {
-                sh 'docker run -d --name mysql --network bank-network -e MYSQL_ROOT_PASSWORD=Test@123 -e MYSQL_DATABASE=bankkappdb -p 3306:3306 mysql'
+                sh 'docker run -d --name mysql --network bank-network -e MYSQL_ROOT_PASSWORD=Test@123 -e MYSQL_DATABASE=bankappdb -p 3306:3306 mysql'
             }
         }
         stage ("create docker image and container") {
