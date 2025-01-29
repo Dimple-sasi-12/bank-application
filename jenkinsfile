@@ -1,0 +1,66 @@
+def COLOR_MAP = [
+    'SUCCESS': 'good',
+    'FAILURE': 'danger'
+]
+pipeline {
+    agent any
+    environment {
+        SCANNER_HOME = tool 'sonarqube'
+    }
+    stages {
+        stage ("git scm") {
+            steps {
+                git branch: 'master', url: 'https://github.com/Dimple-sasi-12/bank-application.git' 
+            }
+        }
+        stage ("compile") {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+        stage('Code Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh ''' 
+                        $SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=ci-cd \
+                        -Dsonar.java.binaries=. \
+                        -Dsonar.projectKey=ci-cd
+                    '''
+                }
+            }
+        }
+        stage ("delete networks, images and container") {
+            steps {
+                sh 'docker stop $(docker ps -q) || true'
+                sh 'docker rm $(docker ps -aq) || true'
+                sh 'docker rmi $(docker images -q) || true'
+                sh 'docker network rm bank-network || true'
+            }
+        }
+        stage ("create a docker network") {
+            steps {
+                sh 'docker network create bank-network'
+            }
+        }
+        stage ("run sql database") {
+            steps {
+                sh 'docker run -d --name mysql --network bank-network -e MYSQL_ROOT_PASSWORD=Test@123 -e MYSQL_DATABASE=bankappdb -p 3306:3306 mysql'
+            }
+        }
+        stage ("create docker image and container") {
+            steps {
+                sh 'docker build -t bank-img .'
+                sh 'docker run -itd --name bank-con --network bank-network -p 8082:8081 bank-img'
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Slack Notification.'
+            slackSend channel: '#dev-team',
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${env.JOB_NAME} build ${env.BUILD_NUMBER} \n More info at: ${env.BUILD_URL}"
+        }
+    }
+}
